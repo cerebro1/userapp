@@ -2,6 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bad-deployment
+  namespace: default
+  labels:
+    watch: "true"
+    component: "testkube"
 spec:
   replicas: 1
   selector:
@@ -13,6 +17,7 @@ spec:
         app: bad
     spec:
       containers:
-      - name: busybox
-        image: busybox
-        command: ["sleep", "3600"]
+        - name: bad-container
+          image: nginx:1.21
+          ports:
+            - containerPort: 80

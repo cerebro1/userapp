@@ -4,6 +4,8 @@ metadata:
   name: userapp
   labels:
     app: userapp
+    watch: "true"
+    component: "testkube"
 spec:
   replicas: 2
   selector:

@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: kyverno-policyreport-sensor
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: policy-failure
+      eventSourceName: kyverno-policyreport-events
+      eventName: kyverno-policy-failures
+  triggers:
+    - template:
+        name: log-trigger
+        log:
+          intervalSeconds: 10
+          maxEventsPerSecond: 2

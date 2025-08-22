@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: kyverno-policyreport-events
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+    container:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+  eventBusName: default
+  resource:
+    kyverno-policy-failures:
+      version: v1alpha2
+      group: wgpolicyk8s.io
+      resource: policyreports
+      namespace: default
+      eventTypes:
+        - ADD
+        - UPDATE
+      filter:
+        expression: |
+          body.summary.fail > 0 && 
+          any(body.results, {.result == "fail"})
