@@ -1,41 +1,48 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: kyverno-violation-sensor
-  namespace: argo-events
+ name: kyverno-violation-sensor
+ namespace: argo-events
 spec:
-  template:
-    serviceAccountName: argo-events-sa
-    container:
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "128Mi"
-        limits:
-          cpu: "500m"
-          memory: "512Mi"
-  eventBusName: default
-  dependencies:
-    - name: kyverno-violation-dep
-      eventSourceName: kyverno-policyreport-events   
-      eventName: kyverno-policy-failures            
-  triggers:
-    - template:
-        name: trigger-testkube
-        conditions: "kyverno-violation-dep"
-        http:
-          url: https://api.testkube.io/organizations/tkcorg_b8ddc820d4919590/environments/tkcenv_94cb6305570f69bd/agent/test-workflows/curl-userapp/executions
-          payload:
-            - src:
-                dependencyName: kyverno-violation-dep
-                dataKey: body.metadata.name
-              dest: tags.PolicyViolation
-          method: POST
-          headers:
-            Content-Type: application/json
-          secureHeaders:
-            - name: Authorization
-              valueFrom:
-                secretKeyRef:
-                  name: testkube-auth-secret
-                  key: TESTKUBE_API_TOKEN
+ template:
+   serviceAccountName: argo-events-sa
+   container:
+     resources:
+       requests:
+         cpu: "100m"
+         memory: "128Mi"
+       limits:
+         cpu: "500m"
+         memory: "512Mi"
+ eventBusName: default
+ dependencies:
+ - name: kyverno-violation-dep
+   eventSourceName: kyverno-policyreport-events
+   eventName: kyverno-policy-failures
+ triggers:
+ - template:
+     name: trigger-testkube
+     conditions: "kyverno-violation-dep"
+     http:
+       url: http://api.testkube.io/organizations/tkcorg_b8ddc820d4919590/environments/tkcenv_94cb6305570f69bd/agent/test-workflows/smoke-nova/executions
+       payload:
+       - src:
+           dependencyName: kyverno-violation-dep
+           dataKey: body.metadata.name
+         dest: tags.PolicyViolationName       
+       method: POST
+       headers:
+         Content-Type: application/json
+       secureHeaders:
+         - name: Authorization
+           valueFrom:
+             secretKeyRef:
+               name: testkube-auth-secret
+               key: TESTKUBE_API_TOKEN
+     retryStrategy:
+       steps: 3
+       duration: 10s
+       backoff:
+         duration: 6s
+         factor: 2
+         jitter: 0.1

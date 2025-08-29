@@ -22,7 +22,6 @@ spec:
       resource: policyreports
       namespace: default
       eventTypes:
-        - ADD
         - UPDATE
       filter:
         expression: |

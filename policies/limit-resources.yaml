@@ -1,0 +1,28 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resources
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: require-resources-in-deployment
+      match:
+        resources:
+          kinds:
+            - Deployment
+          namespaces:
+            - default
+      validate:
+        message: "CPU request must be at least 200m and memory request must be specified for all containers in a Deployment."
+        anyPattern:
+          - spec:
+              template:
+                spec:
+                  containers:
+                    - resources:
+                        requests:
+                          # memory must exist (any non-empty value)
+                          memory: "?*"
+                          # CPU must be >= 200m
+                          cpu: "2??m | [3-9]??m | ????m | ?.? | [1-9][0-9]*"

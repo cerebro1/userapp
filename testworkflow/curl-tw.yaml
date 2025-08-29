@@ -1,0 +1,13 @@
+apiVersion: testworkflows.testkube.io/v1
+kind: TestWorkflow
+metadata:
+  name: smoke-nova
+  namespace: testkube
+  labels:
+    argoevent: "true"
+spec:
+  steps:
+    - name: Run curl
+      container:
+        image: curlimages/curl:8.7.1
+      shell: curl http://userapp.local/?name=nova
