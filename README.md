@@ -24,7 +24,8 @@ You can view the list of minikube maintainers at: https://github.com/kubernetes/
 
 ### Deploy resources
 
-```kubectl apply -f k8s/
+```
+kubectl apply -f k8s/
 ```
 
 ### Add cluster ip to /etc/hosts
